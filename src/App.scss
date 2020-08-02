@@ -1,19 +1,23 @@
-.l-container {
-  width: 100%;
-  min-height: 100vh;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+.l-app {
+  width: 560px;
+  max-width: 100%;
+  min-width: 100px;
+  height: 315px;
+  margin: 0 auto;
+  position: relative;
 }
 
-.c-title {
-  font-size: 30px;
-  font-weight: bold;
-}
+.c-app {
+  &__btn {
+    margin-top: 16px;
 
-.c-subtitle {
-  margin-top: 8px;
-  margin-bottom: 32px;
+    background-color: var(--p);
+    color: #000000;
+    font-weight: 500;
+    padding: 10px 20px;
+    letter-spacing: 0.5px;
+    border-radius: 2px;
+    cursor: pointer;
+    outline: none;
+  }
 }

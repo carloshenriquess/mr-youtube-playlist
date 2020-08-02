@@ -1,13 +1,27 @@
-import React from 'react';
-import kaori from './assets/kaori.gif';
+import React, { useEffect } from 'react';
 import './App.scss';
 
+import Player from './Player';
+
 function App() {
+  const play = () => {
+    console.log('PLAY:', new Date().toTimeString());
+  }
+
+  const onClickPlay = () => {
+    play();
+  }
+
+  useEffect(() => {
+    window.addEventListener("blur", () => {
+      setTimeout(() => play(), 2000);
+    });
+  }, [])
+
   return (
-    <div className="l-container">
-      <h1 className="c-title">Best anime</h1>
-      <p className="c-subtitle">Shigatsu wa Kimi no Uso</p>
-      <img src={kaori} alt="Kaori" />
+    <div className="l-app">
+      <Player />
+      <button className="c-app__btn" onClick={onClickPlay} type="button">PLAY</button>
     </div>
   );
 }

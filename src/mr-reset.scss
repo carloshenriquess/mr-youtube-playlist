@@ -51,7 +51,7 @@ h1 {
  */
 
 hr {
-  box-sizing: content-box; /* 1 */
+  // box-sizing: content-box; /* 1 */
   height: 0; /* 1 */
   overflow: visible; /* 2 */
 }
@@ -240,7 +240,7 @@ button:-moz-focusring,
  */
 
 legend {
-  box-sizing: border-box; /* 1 */
+  // box-sizing: border-box; /* 1 */
   color: inherit; /* 2 */
   display: table; /* 1 */
   max-width: 100%; /* 1 */
@@ -271,7 +271,7 @@ textarea {
 
 [type='checkbox'],
 [type='radio'] {
-  box-sizing: border-box; /* 1 */
+  // box-sizing: border-box; /* 1 */
   padding: 0; /* 2 */
 }
 
@@ -480,7 +480,15 @@ table {
   border-spacing: 0;
 }
 
-// ============================================================================
+// ==================================My stuff==========================================
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 table {
   table-layout: fixed;
+}
+button {
+  border: none;
 }
