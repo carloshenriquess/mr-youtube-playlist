@@ -1,2 +1,3 @@
-# React Template
-Template project for React
+# Youtube playlist
+
+PWA Youtube playlist
