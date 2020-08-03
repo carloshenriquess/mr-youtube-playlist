@@ -51,7 +51,7 @@ function App() {
     }
     if (event.data === 2 && !document.hasFocus()) {
       player?.playVideo();
-      setTimeout(() => player?.playVideo(), 2000);
+      // setTimeout(() => player?.playVideo(), 2000);
     }
   };
 
