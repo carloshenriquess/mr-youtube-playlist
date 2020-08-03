@@ -53,14 +53,8 @@ function App() {
       clearTimeout(endVideoListener as any);
     }
     if (event.data === 2 && !document.hasFocus()) {
-      const intarvalCallback = () => {
-        if (player?.getPlayerState() === 2) { // ? Paused
-          player?.playVideo();
-        } else {
-          clearInterval(intarvalCallback as any);
-        }
-      };
-      setInterval(() => intarvalCallback, 500);
+      player?.playVideo();
+      setTimeout(() => player?.playVideo(), 1000);
     }
   };
 
