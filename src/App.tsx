@@ -17,11 +17,17 @@ function App() {
   };
 
   useEffect(() => {
-    window.addEventListener('blur', () => {
+    const intervalHandler = () => {
       if (player?.getPlayerState() === 2) { // ? Paused
         player?.playVideo();
       }
+    };
+    window.addEventListener('blur', () => {
+      setInterval(intervalHandler, 500);
     });
+    window.addEventListener('focus', () => {
+      clearInterval(intervalHandler as any);
+    })
   }, [])
 
   useEffect(() => {
