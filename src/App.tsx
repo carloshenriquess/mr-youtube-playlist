@@ -31,15 +31,13 @@ function App() {
     setPreviousDisabled(!ready || !playedVideos.length || currentVideoIsFirst);
   }, [ready, playedVideos, currentVideo])
 
-  // useEffect(() => {
-  // window.addEventListener("blur", () => {
-  //   setTimeout(() => play(), 2000);
-  // });
-  // }, []);
   const onReady = (event: YT.PlayerEvent) => {
     setPlayer(event.target);
   };
-
+  const endVideoListener = () => {
+    player?.pauseVideo();
+    playNextVideo();
+  };
   const onStateChange = (event: YT.OnStateChangeEvent) => {
     if (playerInitialized && !ready) {
       setReady(true);
@@ -48,10 +46,12 @@ function App() {
       const duration = player?.getDuration() as number;
       const currentTime = player?.getCurrentTime() as number;
       const remainingTime = duration - currentTime;
-      setTimeout(() => {
-        player?.pauseVideo();
-        playNextVideo();
-      }, remainingTime * 1000);
+      clearTimeout(endVideoListener as any);
+      setTimeout(endVideoListener, remainingTime * 1000);
+    }
+    if (event.data === 2 && !document.hasFocus()) {
+      player?.playVideo();
+      setTimeout(() => player?.playVideo(), 2000);
     }
   };
 
