@@ -10,11 +10,20 @@ function App() {
   const [playedVideos, setPlayedVideos] = useState<readonly number[]>([initialVideo]);
   const [previousDisabled, setPreviousDisabled] = useState<boolean>(true);
   const [currentVideo, setCurrentVideo] = useState<number>(initialVideo);
+  const [onVideoEnd, setOnVideoEnd] = useState<() => void>();
   const options: Options = {
     playerVars: {
       autoplay: 1,
     },
   };
+
+  useEffect(() => {
+    if (!player) { return; }
+    setOnVideoEnd(() => {
+      player?.pauseVideo();
+      playNextVideo();
+    });
+  }, [])
 
   useEffect(() => {
     if (!player) { return; }
@@ -34,10 +43,6 @@ function App() {
   const onReady = (event: YT.PlayerEvent) => {
     setPlayer(event.target);
   };
-  const endVideoListener = () => {
-    player?.pauseVideo();
-    playNextVideo();
-  };
   const onStateChange = (event: YT.OnStateChangeEvent) => {
     if (playerInitialized && !ready) {
       setReady(true);
@@ -46,11 +51,10 @@ function App() {
       const duration = player?.getDuration() as number;
       const currentTime = player?.getCurrentTime() as number;
       const remainingTime = duration - currentTime;
-      clearTimeout(endVideoListener as any);
-      setTimeout(endVideoListener, remainingTime * 1000);
+      setTimeout(onVideoEnd as () => void, remainingTime * 1000);
     }
     if (event.data === 2) {
-      clearTimeout(endVideoListener as any);
+      clearTimeout(onVideoEnd as any);
     }
     if (event.data === 2 && !document.hasFocus()) {
       player?.playVideo();
