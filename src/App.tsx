@@ -17,20 +17,6 @@ function App() {
   };
 
   useEffect(() => {
-    const intervalHandler = () => {
-      if (player?.getPlayerState() === 2) { // ? Paused
-        player?.playVideo();
-      }
-    };
-    window.addEventListener('blur', () => {
-      setInterval(intervalHandler, 500);
-    });
-    window.addEventListener('focus', () => {
-      clearInterval(intervalHandler as any);
-    })
-  }, [])
-
-  useEffect(() => {
     if (!player) { return; }
     initializePlayer();
   }, [player]);
@@ -62,6 +48,19 @@ function App() {
       const remainingTime = duration - currentTime;
       clearTimeout(endVideoListener as any);
       setTimeout(endVideoListener, remainingTime * 1000);
+    }
+    if (event.data === 2) {
+      clearTimeout(endVideoListener as any);
+    }
+    if (event.data === 2 && !document.hasFocus()) {
+      const intarvalCallback = () => {
+        if (player?.getPlayerState() === 2) { // ? Paused
+          player?.playVideo();
+        } else {
+          clearInterval(intarvalCallback as any);
+        }
+      };
+      setInterval(() => intarvalCallback, 500);
     }
   };
 
