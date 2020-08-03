@@ -17,6 +17,14 @@ function App() {
   };
 
   useEffect(() => {
+    window.addEventListener('blur', () => {
+      if (player?.getPlayerState() === 2) { // ? Paused
+        player?.playVideo();
+      }
+    });
+  }, [])
+
+  useEffect(() => {
     if (!player) { return; }
     initializePlayer();
   }, [player]);
@@ -48,10 +56,6 @@ function App() {
       const remainingTime = duration - currentTime;
       clearTimeout(endVideoListener as any);
       setTimeout(endVideoListener, remainingTime * 1000);
-    }
-    if (event.data === 2 && !document.hasFocus()) {
-      player?.playVideo();
-      // setTimeout(() => player?.playVideo(), 2000);
     }
   };
 
