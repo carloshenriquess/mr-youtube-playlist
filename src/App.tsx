@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.scss';
 import YouTube, { Options } from 'react-youtube';
+import { TimeoutSink, assert } from './util';
 
 function App() {
   const initialVideo = 3;
@@ -10,7 +11,7 @@ function App() {
   const [playedVideos, setPlayedVideos] = useState<readonly number[]>([initialVideo]);
   const [previousDisabled, setPreviousDisabled] = useState<boolean>(true);
   const [currentVideo, setCurrentVideo] = useState<number>(initialVideo);
-  const [onVideoEnd, setOnVideoEnd] = useState<() => void>();
+  const [timeoutSink] = useState<TimeoutSink>(() => new TimeoutSink());
   const options: Options = {
     playerVars: {
       autoplay: 1,
@@ -19,20 +20,22 @@ function App() {
 
   useEffect(() => {
     if (!player) { return; }
-    setOnVideoEnd(() => {
-      player?.pauseVideo();
-      playNextVideo();
-    });
-  }, [])
+    assert(player);
+    const initializePlayer = () => {
+      player.loadPlaylist({
+        list: 'PLhHHziNjM2TPIOkQqPvRGMeg32YmasOVr',
+        index: initialVideo,
+      });
+      setPlayerInitialized(true);
+    };
 
-  useEffect(() => {
-    if (!player) { return; }
     initializePlayer();
   }, [player]);
 
   useEffect(() => {
     if (!player) { return; }
-    player?.playVideoAt(currentVideo);
+    assert(player);
+    player.playVideoAt(currentVideo);
   }, [currentVideo]);
 
   useEffect(() => {
@@ -44,62 +47,67 @@ function App() {
     setPlayer(event.target);
   };
   const onStateChange = (event: YT.OnStateChangeEvent) => {
+    assert(player);
+    timeoutSink.clearAll();
     if (playerInitialized && !ready) {
       setReady(true);
     }
-    if (event.data === 1) {
-      const duration = player?.getDuration() as number;
-      const currentTime = player?.getCurrentTime() as number;
+    if (event.data === 1) { // ? 1 -> PLAYING
+      const duration = player.getDuration() as number;
+      const currentTime = player.getCurrentTime() as number;
       const remainingTime = duration - currentTime;
-      setTimeout(onVideoEnd as () => void, remainingTime * 1000);
+      const newOnVideoEnd = () => {
+        console.log('videoEnd');
+        player?.pauseVideo();
+        playNextVideo();
+      };
+      timeoutSink.add(newOnVideoEnd, remainingTime * 1000 - 250);
     }
-    if (event.data === 2) {
-      clearTimeout(onVideoEnd as any);
+  };
+
+  const onClickPrevious = () => {
+    const currentVideoIndex = playedVideos.findIndex(video => video === currentVideo);
+    if (currentVideoIndex === -1) {
+      throw new Error(`onClickPrevious(): current video not found in played videos array\ncurrentVideo: ${currentVideo}\nplayedVideos: ${playedVideos}`);
     }
-    if (event.data === 2 && !document.hasFocus()) {
-      player?.playVideo();
-      setTimeout(() => player?.playVideo(), 2000);
-    }
+    if (currentVideoIndex === 0) { return; }
+
+    setCurrentVideo(playedVideos[currentVideoIndex - 1]);
   };
 
   const onClickNext = () => {
     playNextVideo();
   };
 
-  const onClickPrevious = () => {
-    const currentVideoIndex = playedVideos.findIndex(video => video === currentVideo);
-    if (currentVideoIndex > 0) {
-      setCurrentVideo(playedVideos[currentVideoIndex - 1]);
-    }
-  };
-
-  const initializePlayer = () => {
-    player?.loadPlaylist({
-      list: 'PLhHHziNjM2TPIOkQqPvRGMeg32YmasOVr',
-      index: 3,
-    });
-    setPlayerInitialized(true);
-  };
-
   const playNextVideo = () => {
-    const videosLength = player?.getPlaylist().length || 0;
+    assert(player);
+    const videosLength = player.getPlaylist().length;
     if (playedVideos.length === videosLength) {
-      setPlayedVideos([]);
-    }
-    const currentVideoIndex = playedVideos.findIndex(video => video === currentVideo);
-    if (currentVideoIndex >= 0 && currentVideoIndex !== playedVideos.length - 1) {
-      setCurrentVideo(playedVideos[currentVideoIndex + 1]);
-    } else {
-      const getNextIndex = (nextVideo: number): number => {
-        if (playedVideos.includes(nextVideo)) {
-          nextVideo++;
-          return getNextIndex(nextVideo === videosLength ? 0 : nextVideo);
-        }
-        return nextVideo;
-      }
-      const nextVideo = getNextIndex(Math.floor(Math.random() * videosLength));
-      setPlayedVideos([...playedVideos, nextVideo]);
+      const nextVideo = Math.floor(Math.random() * videosLength);
+      setPlayedVideos([nextVideo]);
       setCurrentVideo(nextVideo);
+    } else {
+      const currentVideoIndex = playedVideos.findIndex(video => video === currentVideo);
+      if (currentVideoIndex === -1) {
+        throw new Error(`playNextVideo(): [currentVideo] não encontrado em [playedVideos]\ncurrentVideo = ${currentVideo}\nplayedVideos = ${playedVideos}`);
+      }
+      if (currentVideoIndex < playedVideos.length - 1) {
+        setCurrentVideo(playedVideos[currentVideoIndex + 1]);
+      } else {
+        const getNextIndex = (): number => {
+          const getNotPlayedIndex = (index: number): number => {
+            if (playedVideos.includes(index)) {
+              index++;
+              return getNotPlayedIndex(index === videosLength ? 0 : index);
+            }
+            return index;
+          }
+          return getNotPlayedIndex(Math.floor(Math.random() * videosLength));
+        }
+        const nextVideo = getNextIndex();
+        setPlayedVideos([...playedVideos, nextVideo]);
+        setCurrentVideo(nextVideo);
+      }
     }
   }
 
