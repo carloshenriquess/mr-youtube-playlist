@@ -21,17 +21,13 @@ function App() {
   useEffect(() => {
     if (!player) { return; }
     assert(player);
-    const initializePlayer = () => {
-      player.loadPlaylist({
-        list: 'PLhHHziNjM2TPIOkQqPvRGMeg32YmasOVr',
-        index: initialVideo,
-      });
-      setPlayerInitialized(true);
-    };
-
-    initializePlayer();
+    player.loadPlaylist({
+      list: 'PLhHHziNjM2TPIOkQqPvRGMeg32YmasOVr',
+      index: initialVideo,
+    });
+    setPlayerInitialized(true);
   }, [player]);
-
+  // mudança
   useEffect(() => {
     if (!player) { return; }
     assert(player);
