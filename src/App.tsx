@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './App.scss';
 import YouTube, { Options } from 'react-youtube';
 import { TimeoutSink, assert } from './util';
+import { Player } from './Player';
 
 function App() {
   const initialVideo = 3;
@@ -109,15 +110,7 @@ function App() {
 
   return (
     <div className="l-app">
-      <div className="c-player">
-        <div className="c-player__iframe-wrapper">
-          <YouTube className="c-player__iframe" opts={options} onReady={onReady} onStateChange={onStateChange} />
-        </div>
-        <div className="c-player__buttons">
-          <button className="c-player__btn" onClick={onClickPrevious} disabled={previousDisabled} type="button">PREVIOUS</button>
-          <button className="c-player__btn" onClick={onClickNext} disabled={!ready} type="button">NEXT</button>
-        </div>
-      </div>
+      <Player options={options} onStateChange={onStateChange} onReady={onReady} onClickNext={onClickNext} onClickPrevious={onClickPrevious} previousDisabled={previousDisabled} nextDisabled={!ready} />
     </div>
   );
 }
