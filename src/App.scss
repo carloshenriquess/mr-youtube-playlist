@@ -5,4 +5,37 @@
   // height: 315px;
   margin: 0 auto;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.c-input {
+  width: 560px;
+  max-width: 100%;
+  min-width: 100px;
+  margin: 16px 0 8px;
+  display: flex;
+  &__input {
+    flex: 1;
+    height: 30px;
+    border: none;
+    padding-left: 10px;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    background-color: var(--input-container);
+  }
+  &__button {
+    background-color: var(--p);
+    color: black;
+    border: none;
+    border-bottom-right-radius: 5px;
+    border-top-right-radius: 5px;
+    cursor: pointer;
+    min-width: 33px;
+  }
+  &__button-icon {
+    width: 18px;
+    height: 18px;
+  }
 }

@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, SyntheticEvent } from 'react';
 import './App.scss';
-import YouTube, { Options } from 'react-youtube';
+import { Options } from 'react-youtube';
 import { TimeoutSink, assert } from './util';
 import { Player } from './Player';
+import { Clipboard } from 'react-feather';
 
 function App() {
-  const initialVideo = 3;
+  const [initialVideo, setInitialVideo] = useState<number>(3);
   const [ready, setReady] = useState<boolean>(false);
   const [playerInitialized, setPlayerInitialized] = useState<boolean>(false);
   const [player, setPlayer] = useState<YT.Player>();
+  const [playlistId, setPlaylistId] = useState<string>('PLhHHziNjM2TPIOkQqPvRGMeg32YmasOVr');
   const [playedVideos, setPlayedVideos] = useState<readonly number[]>([initialVideo]);
   const [previousDisabled, setPreviousDisabled] = useState<boolean>(true);
   const [currentVideo, setCurrentVideo] = useState<number>(initialVideo);
@@ -23,11 +25,12 @@ function App() {
     if (!player) { return; }
     assert(player);
     player.loadPlaylist({
-      list: 'PLhHHziNjM2TPIOkQqPvRGMeg32YmasOVr',
+      list: playlistId,
       index: initialVideo,
     });
     setPlayerInitialized(true);
-  }, [player]);
+  }, [player, playlistId]);
+
   // mudança
   useEffect(() => {
     if (!player) { return; }
@@ -45,7 +48,7 @@ function App() {
   };
   const onStateChange = (event: YT.OnStateChangeEvent) => {
     assert(player);
-    timeoutSink.clearAll();
+    timeoutSink.clear();
     if (playerInitialized && !ready) {
       setReady(true);
     }
@@ -58,9 +61,14 @@ function App() {
         player?.pauseVideo();
         playNextVideo();
       };
-      timeoutSink.add(newOnVideoEnd, remainingTime * 1000 - 250);
+      timeoutSink.sink = setTimeout(newOnVideoEnd, remainingTime * 1000 - 250);
     }
   };
+  const onChangeInput = (event: SyntheticEvent) => {
+    const { value } = event.target as any;
+    setInitialVideo(0);
+    setPlaylistId(value);
+  }
 
   const onClickPrevious = () => {
     const currentVideoIndex = playedVideos.findIndex(video => video === currentVideo);
@@ -110,6 +118,12 @@ function App() {
 
   return (
     <div className="l-app">
+      <div className="c-input">
+        <input className="c-input__input" type="text" onInput={onChangeInput} />
+        <button className="c-input__button" type="button">
+          <Clipboard className="c-input__button-icon" />
+        </button>
+      </div>
       <Player options={options} onStateChange={onStateChange} onReady={onReady} onClickNext={onClickNext} onClickPrevious={onClickPrevious} previousDisabled={previousDisabled} nextDisabled={!ready} />
     </div>
   );
