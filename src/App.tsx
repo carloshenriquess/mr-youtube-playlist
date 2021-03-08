@@ -29,14 +29,14 @@ function App() {
       index: initialVideo,
     });
     setPlayerInitialized(true);
-  }, [player, playlistId]);
+  }, [player, playlistId, initialVideo]);
 
   // mudança
   useEffect(() => {
     if (!player) { return; }
     assert(player);
     player.playVideoAt(currentVideo);
-  }, [currentVideo]);
+  }, [currentVideo, player]);
 
   useEffect(() => {
     const currentVideoIsFirst = !!playedVideos.length && playedVideos[0] === currentVideo;
